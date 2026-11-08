@@ -190,15 +190,17 @@ base_url = "http://127.0.0.1:2"
         };
         let mut saved = source("saved", "esplora", "http://missing.local");
         saved.fallback_base_url = Some(format!("{esplora}/fallback"));
-        let mut cfg = UpstreamConfig::default();
-        cfg.sources = vec![
-            source("mempool-space", "mempool-space", mempool),
-            source("blockstream", "esplora", esplora),
-            source("second", "esplora", other),
-            source("down", "mempool-space", down),
-            saved,
-            source("core", "bitcoind-rpc", rpc),
-        ];
+        let cfg = UpstreamConfig {
+            sources: vec![
+                source("mempool-space", "mempool-space", mempool),
+                source("blockstream", "esplora", esplora),
+                source("second", "esplora", other),
+                source("down", "mempool-space", down),
+                saved,
+                source("core", "bitcoind-rpc", rpc),
+            ],
+            ..Default::default()
+        };
         let service = UpstreamService::new(cfg, http);
         service.refresh().await;
 
@@ -259,8 +261,8 @@ base_url = "http://127.0.0.1:2"
             socket.write_all(body).await.unwrap();
         });
         let mut client = TcpStream::connect(addr).await.unwrap();
-        let request =
-            format!("GET /fee-estimates HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n");
+        let request = "GET /fee-estimates HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n"
+            .to_string();
         client.write_all(request.as_bytes()).await.unwrap();
         let mut received = Vec::new();
         client.read_to_end(&mut received).await.unwrap();
