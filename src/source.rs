@@ -2,11 +2,11 @@
 
 use crate::config::SourceConfig;
 use crate::convert::{
-    basic_auth_header, btc_per_kvb_to_sat_per_kvb, join_url, sat_per_vb_to_sat_per_kvb,
-    BITCOIND_FEE_TARGETS, MEMPOOL_SPACE_TARGETS,
+    BITCOIND_FEE_TARGETS, MEMPOOL_SPACE_TARGETS, basic_auth_header, btc_per_kvb_to_sat_per_kvb,
+    join_url, sat_per_vb_to_sat_per_kvb,
 };
 use crate::fetch::HttpFetch;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 #[derive(Debug, Clone)]
 pub struct SourceSnapshot {
@@ -33,7 +33,9 @@ pub async fn refresh_source(
             };
             match fetch_base(source, fallback, http, timeout_ms, now_unix).await {
                 Ok(snapshot) => snapshot,
-                Err(fallback_error) => failed(source, format!("{primary}; fallback: {fallback_error}")),
+                Err(fallback_error) => {
+                    failed(source, format!("{primary}; fallback: {fallback_error}"))
+                }
             }
         }
     }
@@ -59,8 +61,30 @@ async fn fetch_base(
     now_unix: u64,
 ) -> Result<SourceSnapshot, String> {
     let fetched = match source.kind.as_str() {
-        "mempool-space" => fetch_rest(base, "/api/v1/fees/recommended", "/api/blocks/tip/height", "/api/blocks/tip/hash", true, http, timeout_ms).await?,
-        "esplora" => fetch_rest(base, "/fee-estimates", "/blocks/tip/height", "/blocks/tip/hash", false, http, timeout_ms).await?,
+        "mempool-space" => {
+            fetch_rest(
+                base,
+                "/api/v1/fees/recommended",
+                "/api/blocks/tip/height",
+                "/api/blocks/tip/hash",
+                true,
+                http,
+                timeout_ms,
+            )
+            .await?
+        }
+        "esplora" => {
+            fetch_rest(
+                base,
+                "/fee-estimates",
+                "/blocks/tip/height",
+                "/blocks/tip/hash",
+                false,
+                http,
+                timeout_ms,
+            )
+            .await?
+        }
         "bitcoind-rpc" => fetch_bitcoind(source, base, http, timeout_ms).await?,
         other => return Err(format!("unknown kind {other}")),
     };
@@ -169,7 +193,9 @@ async fn fetch_bitcoind(
 ) -> Result<Fetched, String> {
     let mut headers = Vec::new();
     let auth;
-    if let (Some(user), Some(password)) = (source.rpc_user.as_deref(), source.rpc_password.as_deref()) {
+    if let (Some(user), Some(password)) =
+        (source.rpc_user.as_deref(), source.rpc_password.as_deref())
+    {
         auth = basic_auth_header(user, password);
         headers.push(("Authorization", auth.as_str()));
     }
@@ -262,7 +288,11 @@ fn parse_bitcoind_batch(body: &[u8]) -> Result<Fetched, String> {
     if quotes.is_empty() {
         return Err("estimatesmartfee returned no usable quote".to_string());
     }
-    Ok(Fetched { height, hash, quotes })
+    Ok(Fetched {
+        height,
+        hash,
+        quotes,
+    })
 }
 
 fn parse_height(body: &[u8]) -> Result<u64, String> {

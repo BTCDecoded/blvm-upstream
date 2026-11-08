@@ -2,8 +2,8 @@
 
 use crate::config::UpstreamConfig;
 use crate::fetch::HttpFetch;
-use crate::source::{refresh_source, SourceSnapshot};
-use serde_json::{json, Value};
+use crate::source::{SourceSnapshot, refresh_source};
+use serde_json::{Value, json};
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};

@@ -9,7 +9,7 @@ mod source;
 
 pub use config::UpstreamConfig;
 pub use fetch::{HttpFetch, HttpResponse};
-pub use service::{UpstreamService, CAPABILITIES, CONTRACT, METHODS};
+pub use service::{CAPABILITIES, CONTRACT, METHODS, UpstreamService};
 
 #[cfg(test)]
 mod tests {
@@ -101,8 +101,14 @@ base_url = "http://127.0.0.1:2"
 
     #[test]
     fn fractional_sat_per_vb_rounds_up_to_sat_per_kvb() {
-        assert_eq!(crate::convert::sat_per_vb_to_sat_per_kvb(1.0001), Some(1001));
-        assert_eq!(crate::convert::sat_per_vb_to_sat_per_kvb(10.0), Some(10_000));
+        assert_eq!(
+            crate::convert::sat_per_vb_to_sat_per_kvb(1.0001),
+            Some(1001)
+        );
+        assert_eq!(
+            crate::convert::sat_per_vb_to_sat_per_kvb(10.0),
+            Some(10_000)
+        );
         assert_eq!(
             crate::convert::btc_per_kvb_to_sat_per_kvb(0.00002),
             Some(2_000)
@@ -119,9 +125,15 @@ base_url = "http://127.0.0.1:2"
         let mut routes = HashMap::new();
         routes.insert(
             format!("GET {mempool}/api/v1/fees/recommended"),
-            (200, br#"{"fastestFee":1.0001,"halfHourFee":8.5,"hourFee":6,"economyFee":1}"#.to_vec()),
+            (
+                200,
+                br#"{"fastestFee":1.0001,"halfHourFee":8.5,"hourFee":6,"economyFee":1}"#.to_vec(),
+            ),
         );
-        routes.insert(format!("GET {mempool}/api/blocks/tip/height"), (200, b"100".to_vec()));
+        routes.insert(
+            format!("GET {mempool}/api/blocks/tip/height"),
+            (200, b"100".to_vec()),
+        );
         routes.insert(
             format!("GET {mempool}/api/blocks/tip/hash"),
             (200, b"aa".to_vec()),
@@ -130,12 +142,30 @@ base_url = "http://127.0.0.1:2"
             format!("GET {esplora}/fee-estimates"),
             (200, br#"{"6":1.5,"1":2}"#.to_vec()),
         );
-        routes.insert(format!("GET {esplora}/blocks/tip/height"), (200, b"90".to_vec()));
-        routes.insert(format!("GET {esplora}/blocks/tip/hash"), (200, b"bb".to_vec()));
-        routes.insert(format!("GET {other}/fee-estimates"), (200, br#"{"2":3}"#.to_vec()));
-        routes.insert(format!("GET {other}/blocks/tip/height"), (200, b"80".to_vec()));
-        routes.insert(format!("GET {other}/blocks/tip/hash"), (200, b"cc".to_vec()));
-        routes.insert(format!("GET {down}/api/v1/fees/recommended"), (500, b"no".to_vec()));
+        routes.insert(
+            format!("GET {esplora}/blocks/tip/height"),
+            (200, b"90".to_vec()),
+        );
+        routes.insert(
+            format!("GET {esplora}/blocks/tip/hash"),
+            (200, b"bb".to_vec()),
+        );
+        routes.insert(
+            format!("GET {other}/fee-estimates"),
+            (200, br#"{"2":3}"#.to_vec()),
+        );
+        routes.insert(
+            format!("GET {other}/blocks/tip/height"),
+            (200, b"80".to_vec()),
+        );
+        routes.insert(
+            format!("GET {other}/blocks/tip/hash"),
+            (200, b"cc".to_vec()),
+        );
+        routes.insert(
+            format!("GET {down}/api/v1/fees/recommended"),
+            (500, b"no".to_vec()),
+        );
         routes.insert(
             format!("GET {esplora}/fallback/fee-estimates"),
             (200, br#"{"1":4}"#.to_vec()),
@@ -203,7 +233,13 @@ base_url = "http://127.0.0.1:2"
         assert_eq!(core["quotes"][1], serde_json::json!([6, 1000]));
         assert_eq!(service.tip("core").await.unwrap()["height"], 10);
         assert!(service.fee_table("down").await.is_err());
-        assert!(service.fee_table("missing").await.unwrap_err().contains("unknown"));
+        assert!(
+            service
+                .fee_table("missing")
+                .await
+                .unwrap_err()
+                .contains("unknown")
+        );
     }
 
     #[tokio::test]
@@ -223,7 +259,8 @@ base_url = "http://127.0.0.1:2"
             socket.write_all(body).await.unwrap();
         });
         let mut client = TcpStream::connect(addr).await.unwrap();
-        let request = format!("GET /fee-estimates HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n");
+        let request =
+            format!("GET /fee-estimates HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n");
         client.write_all(request.as_bytes()).await.unwrap();
         let mut received = Vec::new();
         client.read_to_end(&mut received).await.unwrap();

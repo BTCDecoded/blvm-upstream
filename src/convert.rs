@@ -46,7 +46,9 @@ fn base64(input: &str) -> String {
     let mut out = String::new();
     let mut index = 0;
     while index + 3 <= bytes.len() {
-        let n = ((bytes[index] as u32) << 16) | ((bytes[index + 1] as u32) << 8) | bytes[index + 2] as u32;
+        let n = ((bytes[index] as u32) << 16)
+            | ((bytes[index + 1] as u32) << 8)
+            | bytes[index + 2] as u32;
         out.push(TABLE[((n >> 18) & 63) as usize] as char);
         out.push(TABLE[((n >> 12) & 63) as usize] as char);
         out.push(TABLE[((n >> 6) & 63) as usize] as char);

@@ -5,9 +5,9 @@ use async_trait::async_trait;
 use blvm_node::module::inter_module::api::ModuleAPI;
 use blvm_node::module::ipc::protocol::CliSpec;
 use blvm_node::module::traits::{ModuleError, NodeAPI};
-use blvm_sdk::module::{ModuleBootstrap, ModuleDb};
 use blvm_sdk::module::runner::run_module_with_setup_and_api;
-use blvm_upstream::{HttpFetch, HttpResponse, UpstreamService, METHODS};
+use blvm_sdk::module::{ModuleBootstrap, ModuleDb};
+use blvm_upstream::{HttpFetch, HttpResponse, METHODS, UpstreamService};
 use std::sync::Arc;
 
 const MODULE_NAME: &str = "blvm-upstream";

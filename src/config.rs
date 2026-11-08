@@ -50,7 +50,11 @@ impl UpstreamConfig {
     }
 
     /// Node `[modules.blvm-upstream]` scalars. Absent keys leave the file value.
-    pub fn apply_scalar_overrides(&mut self, poll_interval_secs: Option<&str>, timeout_ms: Option<&str>) -> anyhow::Result<()> {
+    pub fn apply_scalar_overrides(
+        &mut self,
+        poll_interval_secs: Option<&str>,
+        timeout_ms: Option<&str>,
+    ) -> anyhow::Result<()> {
         if let Some(text) = poll_interval_secs {
             self.poll_interval_secs = text.parse().map_err(|_| {
                 anyhow::anyhow!("poll_interval_secs must be an integer, got {text}")
@@ -76,7 +80,10 @@ impl UpstreamConfig {
             if source.id.is_empty() || !seen.insert(source.id.clone()) {
                 anyhow::bail!("source id must be unique and non-empty, got {}", source.id);
             }
-            if !matches!(source.kind.as_str(), "mempool-space" | "esplora" | "bitcoind-rpc") {
+            if !matches!(
+                source.kind.as_str(),
+                "mempool-space" | "esplora" | "bitcoind-rpc"
+            ) {
                 anyhow::bail!(
                     "source {} kind must be mempool-space, esplora, or bitcoind-rpc, got {}",
                     source.id,
