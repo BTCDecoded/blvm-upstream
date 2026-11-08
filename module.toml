@@ -1,0 +1,13 @@
+name = "blvm-upstream"
+version = "0.1.0"
+description = "Outbound connectors for Esplora, mempool.space, and bitcoind RPC behind blvm.upstream.v1."
+author = "Bitcoin Commons Contributors"
+entry_point = "blvm-upstream"
+
+capabilities = [
+    "http_client",
+    "subscribe_events",
+    "register_module_api",
+]
+
+provides_apis = ["blvm.upstream.v1"]
