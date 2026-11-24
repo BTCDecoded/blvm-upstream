@@ -2,7 +2,7 @@
 name = "blvm-upstream"
 version = "0.1.5"
 edition = "2024"
-rust-version = "1.85"
+rust-version = "1.91"
 authors = ["Bitcoin Commons Contributors"]
 description = "Outbound Bitcoin data connectors behind the blvm.upstream.v1 contract."
 license = "MIT"
